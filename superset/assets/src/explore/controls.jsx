@@ -1,22 +1,4 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-/**
  * This file exports all controls available for use in the different visualization types
  *
  * While the React components located in `controls/components` represent different
@@ -180,15 +162,6 @@ const jsFunctionInfo = (
     </a>.
   </div>
 );
-
-function columnChoices(datasource) {
-  if (datasource && datasource.columns) {
-    return datasource.columns
-      .map(col => [col.column_name, col.verbose_name || col.column_name])
-      .sort((opt1, opt2) => opt1[1].toLowerCase() > opt2[1].toLowerCase() ? 1 : -1);
-  }
-  return [];
-}
 
 function jsFunctionControl(label, description, extraDescr = null, height = 100, defaultText = '') {
   return {
@@ -356,7 +329,7 @@ export const controls = {
     label: t('Linear Color Scheme'),
     choices: () => sequentialSchemeRegistry
       .values()
-      .map(value => [value.id, value.label]),
+      .map(value => [value.name, value.label]),
     default: 'blue_white_yellow',
     clearable: false,
     description: '',
@@ -547,11 +520,11 @@ export const controls = {
       'France',
       'Germany',
       'Italy',
-      'Japan',
+      'India',
+      'Portugal',
       'Morocco',
       'Myanmar',
       'Netherlands',
-      'Portugal',
       'Russia',
       'Singapore',
       'Spain',
@@ -636,7 +609,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Point to your spatial columns'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -646,7 +619,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Point to your spatial columns'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -656,7 +629,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Point to your spatial columns'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -667,7 +640,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Select the longitude column'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -678,7 +651,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Select the latitude column'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -695,17 +668,7 @@ export const controls = {
     validators: [v.nonEmpty],
     description: t('Select the geojson column'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
-    }),
-  },
-
-  polygon: {
-    type: 'SelectControl',
-    label: t('Polygon Column'),
-    validators: [v.nonEmpty],
-    description: t('Select the polygon column. Each row should contain JSON.array(N) of [longitude, latitude] points'),
-    mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -734,7 +697,7 @@ export const controls = {
     default: null,
     description: t('Columns to display'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -744,7 +707,7 @@ export const controls = {
     default: null,
     description: t('Columns to display'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -1114,22 +1077,26 @@ export const controls = {
   },
 
   series: {
-    ...groupByControl,
+    type: 'SelectControl',
     label: t('Series'),
-    multi: false,
     default: null,
     description: t('Defines the grouping of entities. ' +
     'Each series is shown as a specific color on the chart and ' +
     'has a legend toggle'),
+    mapStateToProps: state => ({
+      choices: (state.datasource) ? state.datasource.gb_cols : [],
+    }),
   },
 
   entity: {
-    ...groupByControl,
+    type: 'SelectControl',
     label: t('Entity'),
     default: null,
-    multi: false,
     validators: [v.nonEmpty],
     description: t('This defines the element to be plotted on the chart'),
+    mapStateToProps: state => ({
+      choices: (state.datasource) ? state.datasource.gb_cols : [],
+    }),
   },
 
   x: {
@@ -1473,7 +1440,7 @@ export const controls = {
     label: t('Search Box'),
     renderTrigger: true,
     default: false,
-    description: t('Whether to include a client-side search box'),
+    description: t('Whether to include a client side search box'),
   },
 
   table_filter: {
@@ -1717,7 +1684,7 @@ export const controls = {
     'Non-numerical columns will be used to label points. ' +
     'Leave empty to get a count of points in each cluster.'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -1777,7 +1744,7 @@ export const controls = {
     'Either a numerical column or `Auto`, which scales the point based ' +
     'on the largest cluster'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: [].concat([['Auto', 'Auto']], state.datasource.all_cols),
     }),
   },
 
@@ -1876,7 +1843,7 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Live render'),
     default: true,
-    description: t('Points and clusters will update as the viewport is being changed'),
+    description: t('Points and clusters will update as viewport is being changed'),
   },
 
   mapbox_color: {
@@ -2169,7 +2136,7 @@ export const controls = {
     default: null,
     description: t('The database columns that contains lines information'),
     mapStateToProps: state => ({
-      choices: columnChoices(state.datasource),
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
     validators: [v.nonEmpty],
   },
@@ -2305,15 +2272,6 @@ export const controls = {
     renderTrigger: true,
     description: t('Whether to fill the objects'),
     default: true,
-  },
-
-  filter_configs: {
-    type: 'CollectionControl',
-    label: 'Filters',
-    description: t('Filter configuration for the filter box'),
-    validators: [],
-    controlName: 'FilterBoxItemControl',
-    mapStateToProps: ({ datasource }) => ({ datasource }),
   },
 
   normalized: {
