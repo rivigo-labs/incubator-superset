@@ -660,7 +660,7 @@ def send_email_smtp(to, subject, html_content, config,
     # Attach any inline images, which may be required for display in
     # HTML content (inline)
     for msgid, body in (images or {}).items():
-        image = MIMEImage(body)
+        image = MIMEImage(body, _subtype="jpeg")
         image.add_header('Content-ID', '<%s>' % msgid)
         image.add_header('Content-Disposition', 'inline')
         msg.attach(image)
